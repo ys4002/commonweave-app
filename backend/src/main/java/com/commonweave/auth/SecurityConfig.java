@@ -42,7 +42,7 @@ public class SecurityConfig {
     SecurityFilterChain filterChain(HttpSecurity http, ApiErrorWriter errors, AccountStatusFilter accountStatus,
                                    SecurityProperties security) throws Exception {
         CookieCsrfTokenRepository csrfRepo = CookieCsrfTokenRepository.withHttpOnlyFalse();
-        csrfRepo.setCookieCustomizer(c -> c.sameSite("Lax").secure(security.secureCookies()));
+        csrfRepo.setCookieCustomizer(c -> c.sameSite(security.cookieSameSite()).secure(security.secureCookies()));
         http.cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.csrfTokenRepository(csrfRepo)
                         .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()))
@@ -69,7 +69,7 @@ public class SecurityConfig {
                 throws ServletException, IOException {
             CsrfToken token = (CsrfToken) req.getAttribute("_csrf");
             if (token != null) {
-                token.getToken();
+                res.setHeader("X-XSRF-TOKEN", token.getToken());
             }
             chain.doFilter(req, res);
         }
@@ -93,6 +93,7 @@ public class SecurityConfig {
         cfg.setAllowedOrigins(props.cors().allowedOrigins());
         cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         cfg.setAllowedHeaders(List.of("Content-Type", "X-XSRF-TOKEN", "Accept"));
+        cfg.setExposedHeaders(List.of("X-XSRF-TOKEN"));
         cfg.setAllowCredentials(true);
         cfg.setMaxAge(3600L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

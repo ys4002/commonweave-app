@@ -25,6 +25,23 @@ export function isApiError(e: unknown): e is ApiError {
 
 export const BASE = '/api/v1';
 
+/** Public backend origin set at Vite build time; blank keeps local/Docker same-origin proxying. */
+function apiBaseUrl(): string {
+  const base = import.meta.env.VITE_API_BASE_URL as string | undefined;
+  return (base ?? '').trim().replace(/\/+$/, '');
+}
+
+function apiCredentials(): RequestCredentials {
+  return apiBaseUrl() ? 'include' : 'same-origin';
+}
+
+function rememberCsrfToken(response: Response): string | null {
+  csrfToken = response.headers.get('X-XSRF-TOKEN') ?? csrfToken;
+  return csrfToken ?? readCookie('XSRF-TOKEN');
+}
+
+let csrfToken: string | null = null;
+
 export function readCookie(name: string): string | null {
   const m = document.cookie.split('; ').find((c) => c.startsWith(`${name}=`));
   return m ? decodeURIComponent(m.slice(name.length + 1)) : null;
@@ -66,11 +83,13 @@ async function toError(res: Response): Promise<ApiError> {
 }
 
 async function ensureCsrf(): Promise<string | null> {
-  let token = readCookie('XSRF-TOKEN');
+  let token = csrfToken ?? readCookie('XSRF-TOKEN');
   if (!token) {
     // Any GET sets the cookie, even a 401.
-    await fetch(`${BASE}/auth/me`, { credentials: 'same-origin' }).catch(() => undefined);
-    token = readCookie('XSRF-TOKEN');
+    const response = await fetch(`${apiBaseUrl()}${BASE}/auth/me`, {
+      credentials: apiCredentials(),
+    }).catch(() => undefined);
+    if (response) token = rememberCsrfToken(response);
   }
   return token;
 }
@@ -86,12 +105,14 @@ export async function request<T>(
     const token = await ensureCsrf();
     if (token) headers['X-XSRF-TOKEN'] = token;
   }
-  const res = await fetch(`${BASE}${path}${qs(opts.params)}`, {
+  const res = await fetch(`${apiBaseUrl()}${BASE}${path}${qs(opts.params)}`, {
     method,
     headers,
-    credentials: 'same-origin',
+    credentials: apiCredentials(),
     body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
   });
+  if (method === 'POST' && path === '/auth/logout' && res.ok) csrfToken = null;
+  else rememberCsrfToken(res);
   if (!res.ok) {
     const err = await toError(res);
     if (

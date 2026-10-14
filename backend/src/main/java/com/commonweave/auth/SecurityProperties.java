@@ -10,5 +10,6 @@ public record SecurityProperties(
         @DefaultValue("true") boolean secureCookies,
         @DefaultValue("5") int loginMaxFailures,
         @DefaultValue("15m") Duration throttleWindow,
-        @DefaultValue("10") int signupMaxAttempts) {
+        @DefaultValue("10") int signupMaxAttempts,
+        @DefaultValue("Lax") String cookieSameSite) {
 }

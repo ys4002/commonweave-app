@@ -37,7 +37,7 @@ server:
       cookie:
         name: JSESSIONID
         http-only: true
-        same-site: lax
+        same-site: ${APP_COOKIE_SAME_SITE:Lax}
         secure: ${app.security.secure-cookies}
   error:
     include-message: never
@@ -63,6 +63,7 @@ app:
   security:
     # Secure cookies unless profile dev (plain http on localhost). Override with APP_COOKIE_SECURE.
     secure-cookies: ${APP_COOKIE_SECURE:true}
+    cookie-same-site: ${APP_COOKIE_SAME_SITE:Lax}
     login-max-failures: 5
     throttle-window: 15m
     signup-max-attempts: 10

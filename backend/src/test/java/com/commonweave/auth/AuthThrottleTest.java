@@ -25,7 +25,7 @@ class AuthThrottleTest {
 
     private final TestClock clock = new TestClock();
     private final AuthThrottle throttle = new AuthThrottle(
-            new SecurityProperties(true, 3, Duration.ofMinutes(15), 2), clock);
+            new SecurityProperties(true, 3, Duration.ofMinutes(15), 2, "Lax"), clock);
 
     @Test
     void blocksAfterMaxFailuresAndReportsRetryAfter() {
