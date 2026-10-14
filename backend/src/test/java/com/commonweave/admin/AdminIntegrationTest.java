@@ -97,11 +97,11 @@ class AdminIntegrationTest extends IntegrationTest {
 
     @Test
     void adminCannotDisableOrDemoteSelfAndLastAdminIsProtected() {
-        List<Long> others = jdbc.queryForList("select id from users where platform_role = 'ADMIN' and enabled = true",
+        List<Long> others = jdbc.queryForList("select id from commonweave_users where platform_role = 'ADMIN' and enabled = true",
                 Long.class);
         Actor only = newAdmin("OnlyAdmin");
         try {
-            others.forEach(id -> jdbc.update("update users set enabled = false where id = ?", id));
+            others.forEach(id -> jdbc.update("update commonweave_users set enabled = false where id = ?", id));
             String self = "/api/v1/admin/users/" + only.id();
             expectError(patch(only, self, Map.of("enabled", false), 409), 409, "CONFLICT");
             expectError(patch(only, self, Map.of("platformRole", "USER"), 409), 409, "CONFLICT");
@@ -111,9 +111,9 @@ class AdminIntegrationTest extends IntegrationTest {
             patch(second, "/api/v1/admin/users/" + only.id(), Map.of("platformRole", "USER"), 200);
             expectError(get(only, "/api/v1/admin/overview", 401), 401, "UNAUTHENTICATED");
             expectError(patch(second, "/api/v1/admin/users/" + second.id(), Map.of("platformRole", "USER"), 409), 409, "CONFLICT");
-            jdbc.update("update users set enabled = false where id = ?", second.id());
+            jdbc.update("update commonweave_users set enabled = false where id = ?", second.id());
         } finally {
-            others.forEach(id -> jdbc.update("update users set enabled = true where id = ?", id));
+            others.forEach(id -> jdbc.update("update commonweave_users set enabled = true where id = ?", id));
         }
     }
 

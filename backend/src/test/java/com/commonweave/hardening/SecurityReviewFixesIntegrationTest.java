@@ -191,9 +191,9 @@ class SecurityReviewFixesIntegrationTest extends IntegrationTest {
 
     @Test
     void l3_concurrentMutualDemotionNeverLeavesZeroAdmins() throws Exception {
-        List<Long> others = jdbc.queryForList("select id from users where platform_role = 'ADMIN' and enabled = true", Long.class);
+        List<Long> others = jdbc.queryForList("select id from commonweave_users where platform_role = 'ADMIN' and enabled = true", Long.class);
         try {
-            others.forEach(id -> jdbc.update("update users set enabled = false where id = ?", id));
+            others.forEach(id -> jdbc.update("update commonweave_users set enabled = false where id = ?", id));
             for (int round = 0; round < 3; round++) {
                 Actor a = newAdmin("RaceA" + round);
                 Actor b = newAdmin("RaceB" + round);
@@ -215,13 +215,13 @@ class SecurityReviewFixesIntegrationTest extends IntegrationTest {
                 }
                 pool.shutdownNow();
                 assertTrue(statuses.stream().filter(s -> s == 200).count() <= 1, "both demotions succeeded: " + statuses);
-                int admins = jdbc.queryForObject("select count(*) from users where id in (?, ?) and platform_role = 'ADMIN' and enabled = true",
+                int admins = jdbc.queryForObject("select count(*) from commonweave_users where id in (?, ?) and platform_role = 'ADMIN' and enabled = true",
                         Integer.class, a.id(), b.id());
                 assertEquals(1, admins, "exactly one admin must remain, statuses=" + statuses);
-                jdbc.update("update users set enabled = false where id in (?, ?)", a.id(), b.id());
+                jdbc.update("update commonweave_users set enabled = false where id in (?, ?)", a.id(), b.id());
             }
         } finally {
-            others.forEach(id -> jdbc.update("update users set enabled = true where id = ?", id));
+            others.forEach(id -> jdbc.update("update commonweave_users set enabled = true where id = ?", id));
         }
     }
 

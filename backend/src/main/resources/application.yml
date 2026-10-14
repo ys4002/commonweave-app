@@ -16,6 +16,10 @@ spring:
   flyway:
     enabled: true
     locations: ${FLYWAY_LOCATIONS:classpath:db/migration/mysql}
+    # Existing databases may already contain application tables but no Flyway history.
+    # Baseline at 0 so the versioned migrations still create/upgrade those tables.
+    baseline-on-migrate: true
+    baseline-version: "0"
   jackson:
     time-zone: UTC
     default-property-inclusion: always
@@ -26,7 +30,7 @@ spring:
       add-mappings: false
 
 server:
-  port: 8080
+  port: ${PORT:8080}
   servlet:
     session:
       timeout: 8h

@@ -1,1 +1,1 @@
-ALTER TABLE users ADD COLUMN session_version INT NOT NULL DEFAULT 0;
+ALTER TABLE commonweave_users ADD COLUMN IF NOT EXISTS session_version INT NOT NULL DEFAULT 0;

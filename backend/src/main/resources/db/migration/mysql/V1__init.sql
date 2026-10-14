@@ -1,4 +1,4 @@
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS commonweave_users (
   id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   email VARCHAR(190) NOT NULL,
   password_hash VARCHAR(100) NOT NULL,
@@ -7,10 +7,10 @@ CREATE TABLE users (
   locality VARCHAR(120) NULL,
   onboarded BOOLEAN NOT NULL DEFAULT FALSE,
   created_at DATETIME(6) NOT NULL,
-  CONSTRAINT uq_users_email UNIQUE (email)
+  CONSTRAINT uq_commonweave_users_email UNIQUE (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE circles (
+CREATE TABLE IF NOT EXISTS circles (
   id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   slug VARCHAR(120) NOT NULL,
   name VARCHAR(120) NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE circles (
   CONSTRAINT uq_circles_slug UNIQUE (slug)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE memberships (
+CREATE TABLE IF NOT EXISTS memberships (
   id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   circle_id BIGINT NOT NULL,
   user_id BIGINT NOT NULL,
@@ -31,11 +31,11 @@ CREATE TABLE memberships (
   joined_at DATETIME(6) NOT NULL,
   CONSTRAINT uq_memberships_circle_user UNIQUE (circle_id, user_id),
   CONSTRAINT fk_memberships_circle FOREIGN KEY (circle_id) REFERENCES circles (id),
-  CONSTRAINT fk_memberships_user FOREIGN KEY (user_id) REFERENCES users (id),
+  CONSTRAINT fk_memberships_user FOREIGN KEY (user_id) REFERENCES commonweave_users (id),
   KEY ix_memberships_user (user_id, status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE listings (
+CREATE TABLE IF NOT EXISTS listings (
   id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   circle_id BIGINT NOT NULL,
   owner_id BIGINT NOT NULL,
@@ -57,12 +57,12 @@ CREATE TABLE listings (
   created_at DATETIME(6) NOT NULL,
   updated_at DATETIME(6) NOT NULL,
   CONSTRAINT fk_listings_circle FOREIGN KEY (circle_id) REFERENCES circles (id),
-  CONSTRAINT fk_listings_owner FOREIGN KEY (owner_id) REFERENCES users (id),
+  CONSTRAINT fk_listings_owner FOREIGN KEY (owner_id) REFERENCES commonweave_users (id),
   KEY ix_listings_circle_status (circle_id, status, type),
   KEY ix_listings_owner (owner_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE handoffs (
+CREATE TABLE IF NOT EXISTS handoffs (
   id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   listing_id BIGINT NOT NULL,
   circle_id BIGINT NOT NULL,
@@ -82,16 +82,16 @@ CREATE TABLE handoffs (
   CONSTRAINT uq_handoffs_active_listing UNIQUE (active_listing_id),
   CONSTRAINT fk_handoffs_listing FOREIGN KEY (listing_id) REFERENCES listings (id),
   CONSTRAINT fk_handoffs_circle FOREIGN KEY (circle_id) REFERENCES circles (id),
-  CONSTRAINT fk_handoffs_provider FOREIGN KEY (provider_id) REFERENCES users (id),
-  CONSTRAINT fk_handoffs_recipient FOREIGN KEY (recipient_id) REFERENCES users (id),
-  CONSTRAINT fk_handoffs_proposer FOREIGN KEY (proposer_id) REFERENCES users (id),
+  CONSTRAINT fk_handoffs_provider FOREIGN KEY (provider_id) REFERENCES commonweave_users (id),
+  CONSTRAINT fk_handoffs_recipient FOREIGN KEY (recipient_id) REFERENCES commonweave_users (id),
+  CONSTRAINT fk_handoffs_proposer FOREIGN KEY (proposer_id) REFERENCES commonweave_users (id),
   KEY ix_handoffs_listing (listing_id, status),
   KEY ix_handoffs_provider (provider_id, status),
   KEY ix_handoffs_recipient (recipient_id, status),
   KEY ix_handoffs_circle (circle_id, status, updated_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE handoff_events (
+CREATE TABLE IF NOT EXISTS handoff_events (
   id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   handoff_id BIGINT NOT NULL,
   actor_id BIGINT NOT NULL,
@@ -100,11 +100,11 @@ CREATE TABLE handoff_events (
   note VARCHAR(500) NULL,
   created_at DATETIME(6) NOT NULL,
   CONSTRAINT fk_events_handoff FOREIGN KEY (handoff_id) REFERENCES handoffs (id),
-  CONSTRAINT fk_events_actor FOREIGN KEY (actor_id) REFERENCES users (id),
+  CONSTRAINT fk_events_actor FOREIGN KEY (actor_id) REFERENCES commonweave_users (id),
   KEY ix_events_handoff (handoff_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE notifications (
+CREATE TABLE IF NOT EXISTS notifications (
   id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   user_id BIGINT NOT NULL,
   type VARCHAR(40) NOT NULL,
@@ -115,11 +115,11 @@ CREATE TABLE notifications (
   read_at DATETIME(6) NULL,
   created_at DATETIME(6) NOT NULL,
   CONSTRAINT uq_notifications_dedupe UNIQUE (user_id, dedupe_key),
-  CONSTRAINT fk_notifications_user FOREIGN KEY (user_id) REFERENCES users (id),
+  CONSTRAINT fk_notifications_user FOREIGN KEY (user_id) REFERENCES commonweave_users (id),
   KEY ix_notifications_user (user_id, read_at, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE reports (
+CREATE TABLE IF NOT EXISTS reports (
   id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   circle_id BIGINT NOT NULL,
   reporter_id BIGINT NOT NULL,
@@ -132,12 +132,12 @@ CREATE TABLE reports (
   created_at DATETIME(6) NOT NULL,
   resolved_at DATETIME(6) NULL,
   CONSTRAINT fk_reports_circle FOREIGN KEY (circle_id) REFERENCES circles (id),
-  CONSTRAINT fk_reports_reporter FOREIGN KEY (reporter_id) REFERENCES users (id),
-  CONSTRAINT fk_reports_resolver FOREIGN KEY (resolved_by) REFERENCES users (id),
+  CONSTRAINT fk_reports_reporter FOREIGN KEY (reporter_id) REFERENCES commonweave_users (id),
+  CONSTRAINT fk_reports_resolver FOREIGN KEY (resolved_by) REFERENCES commonweave_users (id),
   KEY ix_reports_circle (circle_id, status, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE moderation_actions (
+CREATE TABLE IF NOT EXISTS moderation_actions (
   id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   circle_id BIGINT NOT NULL,
   moderator_id BIGINT NOT NULL,
@@ -147,6 +147,6 @@ CREATE TABLE moderation_actions (
   note VARCHAR(500) NULL,
   created_at DATETIME(6) NOT NULL,
   CONSTRAINT fk_modactions_circle FOREIGN KEY (circle_id) REFERENCES circles (id),
-  CONSTRAINT fk_modactions_moderator FOREIGN KEY (moderator_id) REFERENCES users (id),
+  CONSTRAINT fk_modactions_moderator FOREIGN KEY (moderator_id) REFERENCES commonweave_users (id),
   KEY ix_modactions_circle (circle_id, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
