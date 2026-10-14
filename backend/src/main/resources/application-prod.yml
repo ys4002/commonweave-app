@@ -5,3 +5,13 @@ spring:
     password: ${DB_PASSWORD}
   flyway:
     locations: classpath:db/migration/postgresql
+# The Vercel frontend calls the Render API cross-site, so production cookies need SameSite=None.
+server:
+  servlet:
+    session:
+      cookie:
+        same-site: ${APP_COOKIE_SAME_SITE:None}
+app:
+  security:
+    secure-cookies: ${APP_COOKIE_SECURE:true}
+    cookie-same-site: ${APP_COOKIE_SAME_SITE:None}

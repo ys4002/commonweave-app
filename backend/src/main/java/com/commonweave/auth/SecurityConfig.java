@@ -28,6 +28,8 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import org.springframework.security.web.csrf.InvalidCsrfTokenException;
+import org.springframework.security.web.csrf.MissingCsrfTokenException;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -57,8 +59,14 @@ public class SecurityConfig {
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint((req, res, ex) ->
                                 errors.write(req, res, ErrorCode.UNAUTHENTICATED, "Sign in required"))
-                        .accessDeniedHandler((req, res, ex) ->
-                                errors.write(req, res, ErrorCode.FORBIDDEN, "Request not allowed")))
+                        .accessDeniedHandler((req, res, ex) -> {
+                            if (ex instanceof MissingCsrfTokenException) {
+                                log.warn("Missing CSRF token on {} {}", req.getMethod(), req.getRequestURI());
+                            } else if (ex instanceof InvalidCsrfTokenException) {
+                                log.warn("Invalid CSRF token on {} {}", req.getMethod(), req.getRequestURI());
+                            }
+                            errors.write(req, res, ErrorCode.FORBIDDEN, "Request not allowed");
+                        })
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable);
