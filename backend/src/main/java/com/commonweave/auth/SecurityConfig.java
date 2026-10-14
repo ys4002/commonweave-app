@@ -66,7 +66,7 @@ public class SecurityConfig {
                                 log.warn("Invalid CSRF token on {} {}", req.getMethod(), req.getRequestURI());
                             }
                             errors.write(req, res, ErrorCode.FORBIDDEN, "Request not allowed");
-                        })
+                        }))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable);
