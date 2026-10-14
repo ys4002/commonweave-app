@@ -33,7 +33,7 @@ cp frontend/.env.example frontend/.env
 docker compose up --build
 ```
 
-Open the app at `http://localhost:5173`; the API is available at `http://localhost:8080`. Compose persists PostgreSQL data in the `postgres-data` volume. The backend uses the PostgreSQL Flyway scripts in this setup. For production, set `SPRING_PROFILES_ACTIVE=prod`, point `DB_URL` at the managed PostgreSQL database, and set `DB_USERNAME`, `DB_PASSWORD`, `APP_CORS_ORIGINS`, and `APP_COOKIE_SECURE=true` in the backend environment. Set `API_UPSTREAM` in the frontend environment to the backend service address. The `prod` profile selects the PostgreSQL migrations automatically.
+Open the app at `http://localhost:5173`; the API is available at `http://localhost:8080`. Compose persists PostgreSQL data in the `postgres-data` volume. The backend uses the PostgreSQL Flyway scripts in this setup. For production, set `SPRING_PROFILES_ACTIVE=prod`, point `DB_URL` at the managed PostgreSQL database, and set `DB_USERNAME`, `DB_PASSWORD`, `APP_CORS_ORIGINS`, and `APP_COOKIE_SECURE=true` in the backend environment. For Docker Compose, set `API_UPSTREAM` in `frontend/.env` to the backend container address. For Vercel, set the Vercel `API_UPSTREAM` environment variable to the Render service origin, such as `https://commonweave-api.onrender.com`; the Vercel function proxies `/api/*` requests to it. The `prod` profile selects the PostgreSQL migrations automatically.
 
 Environment files are kept beside each service: `backend/.env`, `frontend/.env`, and `database/.env`. Keep secrets in those ignored files or in your deployment platform’s secret manager. The root `.env` remains for the non-containerized local scripts, which use MySQL by default.
 
