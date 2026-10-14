@@ -1,0 +1,4 @@
+# Local development runs over plain http, so cookies cannot be Secure here.
+app:
+  security:
+    secure-cookies: false

@@ -1,0 +1,15 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+node_modules/
+target/
+dist/
+*.log
+.idea/
+.vscode/
+.worktrees/
+.gstack/
+playwright-report/
+test-results/
+coverage/

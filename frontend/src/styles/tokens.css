@@ -1,0 +1,51 @@
+:root {
+  /* surfaces */
+  --ink: #12261f;
+  --ink-2: #2c443a;
+  --muted: #52625a;
+  --paper: #f6f0e4;
+  --paper-raised: #fbf8f1;
+  --paper-sunken: #ece4d2;
+  --line: #cdbf9f;
+  --line-soft: #ddd2b8;
+
+  /* brand */
+  --forest: #1d5842;
+  --forest-deep: #0e1d18;
+  --forest-soft: #dfe9df;
+  --signal: #e8a317;
+  --signal-ink: #12261f;
+  --signal-text: #7a4f00; /* amber readable on paper (AA) */
+  --signal-soft: #f8e6b8;
+
+  /* semantic */
+  --danger: #9c2a1b;
+  --danger-soft: #f6dcd5;
+  --ok: #1d6a43;
+  --ok-soft: #d8ecdc;
+  --focus: #0b57d0;
+
+  /* type */
+  --font-display: 'Fraunces', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --fs-0: 0.8125rem;
+  --fs-1: 0.9375rem;
+  --fs-2: 1.0625rem;
+  --fs-3: 1.375rem;
+  --fs-4: clamp(1.75rem, 1.4rem + 1.6vw, 2.5rem);
+
+  /* space */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.5rem;
+  --s-6: 2rem;
+  --s-7: 3rem;
+
+  --radius: 6px;
+  --radius-lg: 12px;
+  --shadow: 0 1px 0 rgba(18, 38, 31, 0.08), 0 6px 18px -12px rgba(18, 38, 31, 0.35);
+  --max: 72rem;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
